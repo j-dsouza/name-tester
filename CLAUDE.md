@@ -56,6 +56,71 @@ src/
 - **Input Method**: Textarea inputs with newline-separated names
 - **Multiple Middle Names**: Supported (space-separated)
 
+## Data Architecture
+
+### Application State Management
+- **Storage**: Client-side localStorage with key 'name-tester-data'
+- **State Shape**: Defined in `src/consts/app.ts` as `AppState` interface
+- **Persistence**: Automatic via `useLocalStorage` hook in `src/hooks/use-local-storage.ts`
+- **Hydration**: SSR-safe with initialization flag to prevent client/server mismatch
+
+### Data Flow
+1. **Input**: Names entered via textareas in NameManagerModal
+2. **Processing**: Parsed for nickname syntax in `src/utils/name-combinations.ts`
+3. **Generation**: All combinations computed with `generateCombinations()`
+4. **Display**: Filtered, sorted, and optionally sampled for UI
+5. **Persistence**: State automatically saved to localStorage on changes
+
+### Name Processing Pipeline
+```
+Input: "Thomas (Tom)" → ParsedName { full: "Thomas", nicknames: ["Tom"] }
+↓
+Combination Generation: Creates variants for all nickname combinations
+↓
+ID Generation: Unique IDs based on full name + nickname variant
+↓
+Display: Shows "Legal Name" (full) and "Used Name" (nickname preference)
+```
+
+## Component Architecture
+
+### Component Hierarchy
+```
+HomePage (src/app/page.tsx)
+├── Tabs (All Combinations | Shortlist)
+├── NameCombinationDisplay
+│   ├── Search input
+│   ├── Sampling alerts
+│   ├── Combination table with shortlist controls
+│   └── Action buttons (Settings, Manage Names)
+├── ShortlistDisplay
+│   ├── Shortlisted combinations table
+│   └── Management controls (clear, remove)
+├── NameManagerModal
+│   ├── Name input textareas (first, middle, last)
+│   └── Form validation and submission
+└── SettingsModal
+    ├── Display preferences toggles
+    ├── Filtering options
+    └── Sorting preferences
+```
+
+### State Management Patterns
+- **Single Source of Truth**: All state in `appState` object
+- **Immutable Updates**: State updates via `setAppState` with spread operator
+- **Derived State**: Combinations computed via `useMemo` from name arrays
+- **Event Handlers**: Passed down as props for state updates
+
+## Feature Integration Points
+
+### Shareable Links Integration
+When implementing shareable links feature:
+- **API Routes**: Add `src/app/api/share/route.ts` and `src/app/api/load/[shortlink]/route.ts`
+- **Load Page**: Add `src/app/load/[shortlink]/page.tsx` for rehydration
+- **Share Button**: Insert in NameCombinationDisplay component header (line 105-124)
+- **Database Schema**: Use Prisma with shared_links table
+- **State Serialization**: Serialize complete `AppState` to JSON for storage
+
 ## Page Documentation
 
 This section tracks what each page in the application does and where functionality should be placed. Update this whenever pages are added, modified, or removed.
@@ -70,4 +135,17 @@ This section tracks what each page in the application does and where functionali
   - Combination generation and display
   - Shortlisting functionality
   - Inline and modal editing options
-- **Status**: Ready for implementation
+- **State Management**: Full `AppState` management with localStorage persistence
+- **Key Components**: NameCombinationDisplay, ShortlistDisplay, NameManagerModal, SettingsModal
+
+### Planned Pages (Shareable Links Feature)
+
+#### `/load/[shortlink]` (Load Shared Data)
+- **File**: `src/app/load/[shortlink]/page.tsx` (to be created)
+- **Purpose**: Load shared name combinations from database and optionally replace local state
+- **Features**:
+  - Validate shortlink parameter
+  - Fetch shared data from API
+  - Show warning modal before overwriting local data
+  - Handle invalid/expired links gracefully
+- **Error States**: Invalid link, database unavailable, expired data

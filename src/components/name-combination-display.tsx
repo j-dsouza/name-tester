@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Heart, Search, Settings, SlidersHorizontal } from "lucide-react";
+import { Heart, Search, Settings, SlidersHorizontal, Share } from "lucide-react";
 import {
   NameCombination,
   filterCombinations,
@@ -27,6 +27,7 @@ interface NameCombinationDisplayProps {
   onToggleAlphabetical: (alphabetical: boolean) => void;
   onOpenNameManager: () => void;
   onOpenSettings: () => void;
+  onOpenShare: () => void;
 }
 
 export function NameCombinationDisplay({
@@ -40,6 +41,7 @@ export function NameCombinationDisplay({
   onToggleAlphabetical,
   onOpenNameManager,
   onOpenSettings,
+  onOpenShare,
 }: NameCombinationDisplayProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [showAll, setShowAll] = useState(false);
@@ -103,6 +105,15 @@ export function NameCombinationDisplay({
               </Badge>
             </CardTitle>
             <div className="flex gap-2">
+              <Button
+                onClick={onOpenShare}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Share className="h-4 w-4" />
+                Share
+              </Button>
               <Button
                 onClick={onOpenSettings}
                 variant="outline"

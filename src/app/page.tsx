@@ -5,6 +5,7 @@ import { NameCombinationDisplay } from "@/components/name-combination-display";
 import { ShortlistDisplay } from "@/components/shortlist-display";
 import { NameManagerModal } from "@/components/name-manager-modal";
 import { SettingsModal } from "@/components/settings-modal";
+import { ShareModal } from "@/components/share-modal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import {
@@ -15,12 +16,13 @@ import {
 import { DEFAULT_STATE, STORAGE_KEY, type AppState } from "@/consts/app";
 
 export default function HomePage() {
-  const [appState, setAppState] = useLocalStorage<AppState>(
+  const [appState, setAppState, isLoadingState] = useLocalStorage<AppState>(
     STORAGE_KEY,
     DEFAULT_STATE
   );
   const [isNameManagerOpen, setIsNameManagerOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Mark as initialized after first render to avoid SSR/client mismatch
@@ -119,6 +121,26 @@ export default function HomePage() {
     }));
   };
 
+  // Don't render until after hydration to prevent SSR mismatch
+  if (!isInitialized || isLoadingState) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold tracking-tight mb-2">
+            Baby Name Tester
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Explore different combinations of first names, middle names, and last
+            names to find the perfect name for your baby.
+          </p>
+        </div>
+        <div className="flex items-center justify-center py-8">
+          <div className="text-muted-foreground">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -167,6 +189,7 @@ export default function HomePage() {
             }
             onOpenNameManager={() => setIsNameManagerOpen(true)}
             onOpenSettings={() => setIsSettingsOpen(true)}
+            onOpenShare={() => setIsShareOpen(true)}
           />
         </TabsContent>
 
@@ -207,6 +230,12 @@ export default function HomePage() {
         onToggleUseShortNames={(useShort) =>
           setAppState((prev) => ({ ...prev, useShortNames: useShort }))
         }
+      />
+
+      <ShareModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        appState={appState}
       />
     </div>
   );
