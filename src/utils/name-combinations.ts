@@ -133,8 +133,8 @@ export function generateCombinations(
               const initials = generateInitials(firstName, middleNameParts, lastName);
               const shortInitials = generateInitials(firstShort, middleNameShortParts, lastShort);
               
-              // Create unique ID based on the short name variant
-              const id = `${firstShort}-${middleShort.replace(/\s+/g, '-')}-${lastShort}`.toLowerCase();
+              // Create unique ID based on both full name and nickname variant to ensure uniqueness
+              const id = `${firstName}-${middleName.replace(/\s+/g, '-')}-${lastName}-${firstShort}-${middleShort.replace(/\s+/g, '-')}-${lastShort}`.toLowerCase();
               
               combinations.push({
                 firstName,
