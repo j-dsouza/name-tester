@@ -21,18 +21,26 @@ export default function HomePage() {
   );
   const [isNameManagerOpen, setIsNameManagerOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Mark as initialized after first render to avoid SSR/client mismatch
+  useEffect(() => {
+    setIsInitialized(true);
+  }, []);
 
   // Auto-open name manager modal when no names are present
   useEffect(() => {
+    if (!isInitialized) return;
+    
     const hasAnyNames = 
       appState.firstNames.length > 0 || 
       appState.middleNames.length > 0 || 
       appState.lastNames.length > 0;
     
-    if (!hasAnyNames) {
+    if (!hasAnyNames && !isNameManagerOpen) {
       setIsNameManagerOpen(true);
     }
-  }, [appState.firstNames.length, appState.middleNames.length, appState.lastNames.length]);
+  }, [isInitialized, appState.firstNames.length, appState.middleNames.length, appState.lastNames.length, isNameManagerOpen]);
 
   const combinations = useMemo(() => {
     if (
