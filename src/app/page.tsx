@@ -143,7 +143,7 @@ export default function HomePage() {
             shortlistedCombinations={appState.shortlistedCombinations}
             hideDuplicateMiddleLastNames={appState.hideDuplicateMiddleLastNames}
             showAlphabetical={appState.showAlphabetical}
-            nameDisplayMode={appState.nameDisplayMode}
+            useShortNames={appState.useShortNames}
             onToggleShortlist={handleToggleShortlist}
             onToggleHideDuplicates={(hide) =>
               setAppState((prev) => ({
@@ -165,7 +165,7 @@ export default function HomePage() {
         <TabsContent value="shortlist" className="mt-6">
           <ShortlistDisplay
             shortlistedCombinations={shortlistedCombinations}
-            nameDisplayMode={appState.nameDisplayMode}
+            useShortNames={appState.useShortNames}
             onRemoveFromShortlist={handleRemoveFromShortlist}
             onClearShortlist={handleClearShortlist}
           />
@@ -186,7 +186,7 @@ export default function HomePage() {
         onClose={() => setIsSettingsOpen(false)}
         hideDuplicateMiddleLastNames={appState.hideDuplicateMiddleLastNames}
         showAlphabetical={appState.showAlphabetical}
-        nameDisplayMode={appState.nameDisplayMode}
+        useShortNames={appState.useShortNames}
         onToggleHideDuplicates={(hide) =>
           setAppState((prev) => ({
             ...prev,
@@ -196,8 +196,8 @@ export default function HomePage() {
         onToggleAlphabetical={(alphabetical) =>
           setAppState((prev) => ({ ...prev, showAlphabetical: alphabetical }))
         }
-        onNameDisplayModeChange={(mode) =>
-          setAppState((prev) => ({ ...prev, nameDisplayMode: mode }))
+        onToggleUseShortNames={(useShort) =>
+          setAppState((prev) => ({ ...prev, useShortNames: useShort }))
         }
       />
     </div>

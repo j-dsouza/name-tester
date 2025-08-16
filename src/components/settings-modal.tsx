@@ -10,17 +10,16 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   hideDuplicateMiddleLastNames: boolean;
   showAlphabetical: boolean;
-  nameDisplayMode: 'full' | 'short' | 'both';
+  useShortNames: boolean;
   onToggleHideDuplicates: (hide: boolean) => void;
   onToggleAlphabetical: (alphabetical: boolean) => void;
-  onNameDisplayModeChange: (mode: 'full' | 'short' | 'both') => void;
+  onToggleUseShortNames: (useShort: boolean) => void;
 }
 
 export function SettingsModal({
@@ -28,10 +27,10 @@ export function SettingsModal({
   onClose,
   hideDuplicateMiddleLastNames,
   showAlphabetical,
-  nameDisplayMode,
+  useShortNames,
   onToggleHideDuplicates,
   onToggleAlphabetical,
-  onNameDisplayModeChange
+  onToggleUseShortNames
 }: SettingsModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -66,25 +65,20 @@ export function SettingsModal({
             <div>
               <h4 className="text-sm font-medium mb-3">Display Options</h4>
               <div className="space-y-4">
-                <div>
-                  <Label className="text-sm font-normal mb-2 block">
-                    Name display mode
-                  </Label>
-                  <Select value={nameDisplayMode} onValueChange={onNameDisplayModeChange}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="full">Full names only</SelectItem>
-                      <SelectItem value="short">Short/nicknames only</SelectItem>
-                      <SelectItem value="both">Both (separate columns)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {nameDisplayMode === 'full' && 'Show only full legal names'}
-                    {nameDisplayMode === 'short' && 'Show only nicknames/short names'}
-                    {nameDisplayMode === 'both' && 'Show both full and short names in separate columns'}
-                  </p>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label htmlFor="use-short-names-modal" className="text-sm font-normal">
+                      Use short names for &quot;Used Name&quot;
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      {useShortNames ? 'Show nicknames/short names in &quot;Used Name&quot; column' : 'Show full names in &quot;Used Name&quot; column'}
+                    </p>
+                  </div>
+                  <Switch
+                    id="use-short-names-modal"
+                    checked={useShortNames}
+                    onCheckedChange={onToggleUseShortNames}
+                  />
                 </div>
                 
                 <div className="flex items-center justify-between">

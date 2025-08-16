@@ -21,7 +21,7 @@ interface NameCombinationDisplayProps {
   shortlistedCombinations: string[];
   hideDuplicateMiddleLastNames: boolean;
   showAlphabetical: boolean;
-  nameDisplayMode: "full" | "short" | "both";
+  useShortNames: boolean;
   onToggleShortlist: (combinationId: string) => void;
   onToggleHideDuplicates: (hide: boolean) => void;
   onToggleAlphabetical: (alphabetical: boolean) => void;
@@ -34,7 +34,7 @@ export function NameCombinationDisplay({
   shortlistedCombinations,
   hideDuplicateMiddleLastNames,
   showAlphabetical,
-  nameDisplayMode,
+  useShortNames,
   onToggleShortlist,
   onToggleHideDuplicates,
   onToggleAlphabetical,
@@ -162,30 +162,17 @@ export function NameCombinationDisplay({
             </div>
           ) : (
             <div className="space-y-2">
-              <div
-                className={`hidden sm:flex items-center justify-between p-3 border-b bg-muted/20`}
-              >
-                <div
-                  className={`flex-1 grid gap-4 ${
-                    nameDisplayMode === "both" ? "grid-cols-4" : "grid-cols-3"
-                  }`}
-                >
-                  <div className="text-sm font-semibold text-muted-foreground">
-                    {nameDisplayMode === "short" ? "Short Name" : "Legal Name"}
-                  </div>
-                  {nameDisplayMode === "both" && (
-                    <div className="text-sm font-semibold text-muted-foreground">
-                      Short Name
-                    </div>
-                  )}
-                  <div className="text-sm font-semibold text-muted-foreground">
-                    First & Last
-                  </div>
-                  <div className="text-sm font-semibold text-muted-foreground">
-                    Initials
-                  </div>
+              <div className="hidden sm:grid grid-cols-4 gap-4 items-center p-3 border-b bg-muted/20">
+                <div className="text-sm font-semibold text-muted-foreground">
+                  Legal Name
                 </div>
-                <div className="w-16 text-sm font-semibold text-muted-foreground text-center">
+                <div className="text-sm font-semibold text-muted-foreground">
+                  Used Name
+                </div>
+                <div className="text-sm font-semibold text-muted-foreground">
+                  Initials
+                </div>
+                <div className="text-sm font-semibold text-muted-foreground text-center">
                   Shortlist
                 </div>
               </div>
@@ -197,77 +184,48 @@ export function NameCombinationDisplay({
                 return (
                   <div
                     key={combination.id}
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors"
+                    className="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-4 items-center p-3 border rounded-lg hover:bg-accent/50 transition-colors"
                   >
-                    <div
-                      className={`flex-1 grid gap-2 sm:gap-4 ${
-                        nameDisplayMode === "both"
-                          ? "grid-cols-1 sm:grid-cols-4"
-                          : "grid-cols-1 sm:grid-cols-3"
-                      }`}
-                    >
-                      <div className="font-medium">
-                        {nameDisplayMode === "short" ? (
-                          // Show short names
-                          <>
-                            <span>{combination.firstNameShort}</span>
-                            {combination.middleNameShort && (
-                              <span className="text-muted-foreground">
-                                {" "}
-                                {combination.middleNameShort}
-                              </span>
-                            )}
-                            <span> {combination.lastNameShort}</span>
-                          </>
-                        ) : (
-                          // Show full names
-                          <>
-                            <span>{combination.firstName}</span>
-                            {combination.middleName && (
-                              <span className="text-muted-foreground">
-                                {" "}
-                                {combination.middleName}
-                              </span>
-                            )}
-                            <span> {combination.lastName}</span>
-                          </>
-                        )}
-                      </div>
-                      {nameDisplayMode === "both" && (
-                        <div className="font-medium text-sm">
-                          <span>{combination.firstNameShort}</span>
-                          {combination.middleNameShort && (
-                            <span className="text-muted-foreground">
-                              {" "}
-                              {combination.middleNameShort}
-                            </span>
-                          )}
-                          <span> {combination.lastNameShort}</span>
-                        </div>
+                    {/* Legal Name - always full names */}
+                    <div className="font-medium">
+                      <span>{combination.firstName}</span>
+                      {combination.middleName && (
+                        <span className="text-muted-foreground">
+                          {" "}
+                          {combination.middleName}
+                        </span>
                       )}
-                      <div className="font-medium text-sm">
-                        {nameDisplayMode === "short"
-                          ? `${combination.firstNameShort} ${combination.lastNameShort}`
-                          : `${combination.firstName} ${combination.lastName}`}
-                      </div>
-                      <div className="text-muted-foreground font-mono text-sm">
-                        {nameDisplayMode === "short"
-                          ? combination.shortInitials
-                          : combination.initials}
-                      </div>
+                      <span> {combination.lastName}</span>
                     </div>
-                    <Button
-                      onClick={() => onToggleShortlist(combination.id)}
-                      variant={isShortlisted ? "default" : "outline"}
-                      size="sm"
-                      className="ml-4"
-                    >
-                      <Heart
-                        className={`h-4 w-4 ${
-                          isShortlisted ? "fill-current" : ""
-                        }`}
-                      />
-                    </Button>
+                    
+                    {/* Used Name - depends on user setting (no middle name) */}
+                    <div className="font-medium">
+                      {useShortNames ? (
+                        <span>{combination.firstNameShort} {combination.lastNameShort}</span>
+                      ) : (
+                        <span>{combination.firstName} {combination.lastName}</span>
+                      )}
+                    </div>
+                    
+                    {/* Initials - based on legal name */}
+                    <div className="text-muted-foreground font-mono text-sm">
+                      {combination.initials}
+                    </div>
+                    
+                    {/* Shortlist button */}
+                    <div className="flex justify-center">
+                      <Button
+                        onClick={() => onToggleShortlist(combination.id)}
+                        variant={isShortlisted ? "default" : "outline"}
+                        size="sm"
+                      >
+                        <Heart
+                          className={`h-4 w-4 ${
+                            isShortlisted ? "fill-current" : ""
+                          }`}
+                        />
+                      </Button>
+                    </div>
                   </div>
                 );
               })}

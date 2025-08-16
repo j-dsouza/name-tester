@@ -9,7 +9,7 @@ export const DEFAULT_STATE = {
   shortlistedCombinations: [] as string[],
   hideDuplicateMiddleLastNames: false,
   showAlphabetical: true,
-  nameDisplayMode: 'both' as 'full' | 'short' | 'both',
+  useShortNames: false,
 };
 
 export type AppState = typeof DEFAULT_STATE;
