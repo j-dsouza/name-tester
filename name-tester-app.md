@@ -12,8 +12,34 @@ The user needs to:
 
 # Features
 
-1. Ability to store multiple names, split into first name, middle names, and last name.
-2. Ability to view combinations of these names, including showing the initials, specifically:
-   1. If there are a small number of combinations, display these all on one page
-   2. If there are a large number of combinations, display a sample of names and help the user to lower the number of names they initially entered in order to reduce down to a managable number of names
-3. Ability to shortlist combinations of names that the user likes
+1. **Name Input & Storage**
+   - Users can enter multiple names in text areas, separated by newlines
+   - Names are categorized into first names, middle names, and last names
+   - Multiple middle names are supported per combination
+   - Names are stored client-side with persistence across browser refreshes
+
+2. **Name Combination Display**
+   - Generate all possible combinations of first + middle + last names
+   - Display combinations side-by-side with initials in a separate column
+   - **Small number threshold**: If ≤50 combinations, display all on one page
+   - **Large number threshold**: If >50 combinations, show random sample arranged alphabetically
+   - When sampling is active, clearly indicate that names are being sampled
+   - Provide user-controlled filtering options alongside sampling
+
+3. **Name Management**
+   - Users can edit name lists through both:
+     - Inline editing in the combination view
+     - Separate "manage names" page/modal
+   - Add/remove names from lists and see immediate updates to combinations
+
+4. **Shortlisting**
+   - Users can shortlist favorite name combinations
+   - No limit on number of shortlisted names
+   - Simple add/remove functionality (no ratings, notes, or sharing features)
+
+# Technical details
+
+- **State Management**: All state stored client-side using browser localStorage
+- **Data Persistence**: State persists across browser refreshes and sessions
+- **Project Scope**: Single active set of names (no multiple projects support)
+- **No Backend**: Entirely client-side application with no database or server requirements
