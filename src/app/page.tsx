@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { NameInputForm } from "@/components/name-input-form";
+import { useState, useMemo, useEffect } from "react";
 import { NameCombinationDisplay } from "@/components/name-combination-display";
 import { ShortlistDisplay } from "@/components/shortlist-display";
 import { NameManagerModal } from "@/components/name-manager-modal";
@@ -22,6 +21,18 @@ export default function HomePage() {
   );
   const [isNameManagerOpen, setIsNameManagerOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Auto-open name manager modal when no names are present
+  useEffect(() => {
+    const hasAnyNames = 
+      appState.firstNames.length > 0 || 
+      appState.middleNames.length > 0 || 
+      appState.lastNames.length > 0;
+    
+    if (!hasAnyNames) {
+      setIsNameManagerOpen(true);
+    }
+  }, [appState.firstNames.length, appState.middleNames.length, appState.lastNames.length]);
 
   const combinations = useMemo(() => {
     if (
@@ -111,13 +122,6 @@ export default function HomePage() {
           names to find the perfect name for your baby.
         </p>
       </div>
-
-      <NameInputForm
-        firstNames={appState.firstNames}
-        middleNames={appState.middleNames}
-        lastNames={appState.lastNames}
-        onNamesUpdate={handleNamesUpdate}
-      />
 
       <Tabs defaultValue="combinations" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
