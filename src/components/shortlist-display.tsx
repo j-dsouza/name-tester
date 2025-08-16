@@ -8,7 +8,7 @@ import { NameCombination } from "@/utils/name-combinations";
 
 interface ShortlistDisplayProps {
   shortlistedCombinations: NameCombination[];
-  nameDisplayMode: 'full' | 'short' | 'both';
+  nameDisplayMode: "full" | "short" | "both";
   onRemoveFromShortlist: (combinationId: string) => void;
   onClearShortlist: () => void;
 }
@@ -17,7 +17,7 @@ export function ShortlistDisplay({
   shortlistedCombinations,
   nameDisplayMode,
   onRemoveFromShortlist,
-  onClearShortlist
+  onClearShortlist,
 }: ShortlistDisplayProps) {
   if (shortlistedCombinations.length === 0) {
     return (
@@ -64,17 +64,25 @@ export function ShortlistDisplay({
       <CardContent>
         <div className="space-y-2">
           <div className="hidden sm:flex items-center justify-between p-3 border-b bg-muted/20">
-            <div className={`flex-1 grid gap-4 ${
-              nameDisplayMode === 'both' ? 'grid-cols-4' : 'grid-cols-3'
-            }`}>
+            <div
+              className={`flex-1 grid gap-4 ${
+                nameDisplayMode === "both" ? "grid-cols-4" : "grid-cols-3"
+              }`}
+            >
               <div className="text-sm font-semibold text-muted-foreground">
-                {nameDisplayMode === 'short' ? 'Short Name' : 'Full Name'}
+                {nameDisplayMode === "short" ? "Short Name" : "Legal Name"}
               </div>
-              {nameDisplayMode === 'both' && (
-                <div className="text-sm font-semibold text-muted-foreground">Short Name</div>
+              {nameDisplayMode === "both" && (
+                <div className="text-sm font-semibold text-muted-foreground">
+                  Short Name
+                </div>
               )}
-              <div className="text-sm font-semibold text-muted-foreground">First & Last</div>
-              <div className="text-sm font-semibold text-muted-foreground">Initials</div>
+              <div className="text-sm font-semibold text-muted-foreground">
+                First & Last
+              </div>
+              <div className="text-sm font-semibold text-muted-foreground">
+                Initials
+              </div>
             </div>
             <div className="w-16 text-sm font-semibold text-muted-foreground text-center">
               Remove
@@ -85,18 +93,23 @@ export function ShortlistDisplay({
               key={combination.id}
               className="flex items-center justify-between p-3 border rounded-lg bg-accent/20"
             >
-              <div className={`flex-1 grid gap-2 sm:gap-4 ${
-                nameDisplayMode === 'both' 
-                  ? 'grid-cols-1 sm:grid-cols-4' 
-                  : 'grid-cols-1 sm:grid-cols-3'
-              }`}>
+              <div
+                className={`flex-1 grid gap-2 sm:gap-4 ${
+                  nameDisplayMode === "both"
+                    ? "grid-cols-1 sm:grid-cols-4"
+                    : "grid-cols-1 sm:grid-cols-3"
+                }`}
+              >
                 <div className="font-medium">
-                  {nameDisplayMode === 'short' ? (
+                  {nameDisplayMode === "short" ? (
                     // Show short names
                     <>
                       <span>{combination.firstNameShort}</span>
                       {combination.middleNameShort && (
-                        <span className="text-muted-foreground"> {combination.middleNameShort}</span>
+                        <span className="text-muted-foreground">
+                          {" "}
+                          {combination.middleNameShort}
+                        </span>
                       )}
                       <span> {combination.lastNameShort}</span>
                     </>
@@ -105,29 +118,36 @@ export function ShortlistDisplay({
                     <>
                       <span>{combination.firstName}</span>
                       {combination.middleName && (
-                        <span className="text-muted-foreground"> {combination.middleName}</span>
+                        <span className="text-muted-foreground">
+                          {" "}
+                          {combination.middleName}
+                        </span>
                       )}
                       <span> {combination.lastName}</span>
                     </>
                   )}
                 </div>
-                {nameDisplayMode === 'both' && (
+                {nameDisplayMode === "both" && (
                   <div className="font-medium text-sm">
                     <span>{combination.firstNameShort}</span>
                     {combination.middleNameShort && (
-                      <span className="text-muted-foreground"> {combination.middleNameShort}</span>
+                      <span className="text-muted-foreground">
+                        {" "}
+                        {combination.middleNameShort}
+                      </span>
                     )}
                     <span> {combination.lastNameShort}</span>
                   </div>
                 )}
                 <div className="font-medium text-sm">
-                  {nameDisplayMode === 'short' 
+                  {nameDisplayMode === "short"
                     ? `${combination.firstNameShort} ${combination.lastNameShort}`
-                    : `${combination.firstName} ${combination.lastName}`
-                  }
+                    : `${combination.firstName} ${combination.lastName}`}
                 </div>
                 <div className="text-muted-foreground font-mono text-sm">
-                  {nameDisplayMode === 'short' ? combination.shortInitials : combination.initials}
+                  {nameDisplayMode === "short"
+                    ? combination.shortInitials
+                    : combination.initials}
                 </div>
               </div>
               <Button
