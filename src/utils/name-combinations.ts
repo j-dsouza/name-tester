@@ -25,6 +25,7 @@ export function parseNames(input: string): string[] {
     .filter(name => name.length > 0);
 }
 
+
 export function parseNameWithNicknames(nameEntry: string): ParsedName {
   // Handle syntax like "Thomas (Tom)" or "Elizabeth (Liz, Beth, Betty)"
   const match = nameEntry.match(/^([^(]+)(?:\s*\(([^)]+)\))?$/);
@@ -63,6 +64,29 @@ export function getDisplayName(parsedName: ParsedName, useShort: boolean): strin
   return parsedName.full;
 }
 
+export function getAllNameVariants(parsedName: ParsedName): string[] {
+  // Return full name plus all nicknames as separate entries
+  return [parsedName.full, ...parsedName.nicknames];
+}
+
+export function getNicknameVariants(parsedName: ParsedName): string[] {
+  // Return only nicknames if they exist, otherwise return the full name
+  return parsedName.nicknames.length > 0 ? parsedName.nicknames : [parsedName.full];
+}
+
+export function countCombinations(firstNamesInput: string, middleNamesInput: string, lastNamesInput: string): number {
+  const parsedFirstNames = parseNamesWithNicknames(firstNamesInput);
+  const parsedMiddleNames = parseNamesWithNicknames(middleNamesInput);
+  const parsedLastNames = parseNamesWithNicknames(lastNamesInput);
+  
+  // Count nickname variants for each position
+  const firstVariantCount = parsedFirstNames.reduce((total, parsed) => total + getNicknameVariants(parsed).length, 0);
+  const middleVariantCount = parsedMiddleNames.reduce((total, parsed) => total + getNicknameVariants(parsed).length, 0);  
+  const lastVariantCount = parsedLastNames.reduce((total, parsed) => total + getNicknameVariants(parsed).length, 0);
+  
+  return firstVariantCount * middleVariantCount * lastVariantCount;
+}
+
 export function generateInitials(firstName: string, middleNames: string[], lastName: string): string {
   const firstInitial = firstName.charAt(0).toUpperCase();
   const middleInitials = middleNames.map(name => name.charAt(0).toUpperCase()).join('');
@@ -86,38 +110,48 @@ export function generateCombinations(
   for (const parsedFirst of parsedFirstNames) {
     for (const parsedMiddle of parsedMiddleNames) {
       for (const parsedLast of parsedLastNames) {
+        // Full names always use the main (full) name
         const firstName = parsedFirst.full;
         const middleName = parsedMiddle.full;
         const lastName = parsedLast.full;
         
-        const firstNameShort = getDisplayName(parsedFirst, true);
-        const middleNameShort = getDisplayName(parsedMiddle, true);
-        const lastNameShort = getDisplayName(parsedLast, true);
+        // Get nickname variants for short names (excluding full name if nicknames exist)
+        const firstVariants = getNicknameVariants(parsedFirst);
+        const middleVariants = getNicknameVariants(parsedMiddle);
+        const lastVariants = getNicknameVariants(parsedLast);
         
-        const middleNameParts = middleName.split(' ').filter(part => part.trim());
-        const middleNameShortParts = middleNameShort.split(' ').filter(part => part.trim());
-        
-        const fullName = `${firstName} ${middleName} ${lastName}`;
-        const shortName = `${firstNameShort} ${middleNameShort} ${lastNameShort}`;
-        
-        const initials = generateInitials(firstName, middleNameParts, lastName);
-        const shortInitials = generateInitials(firstNameShort, middleNameShortParts, lastNameShort);
-        
-        const id = `${firstName}-${middleName.replace(/\s+/g, '-')}-${lastName}`.toLowerCase();
-        
-        combinations.push({
-          firstName,
-          middleName,
-          lastName,
-          fullName,
-          initials,
-          id,
-          firstNameShort,
-          middleNameShort,
-          lastNameShort,
-          shortName,
-          shortInitials
-        });
+        // Create combinations for each nickname variant
+        for (const firstShort of firstVariants) {
+          for (const middleShort of middleVariants) {
+            for (const lastShort of lastVariants) {
+              const middleNameParts = middleName.split(' ').filter(part => part.trim());
+              const middleNameShortParts = middleShort.split(' ').filter(part => part.trim());
+              
+              const fullName = `${firstName} ${middleName} ${lastName}`;
+              const shortName = `${firstShort} ${middleShort} ${lastShort}`;
+              
+              const initials = generateInitials(firstName, middleNameParts, lastName);
+              const shortInitials = generateInitials(firstShort, middleNameShortParts, lastShort);
+              
+              // Create unique ID based on the short name variant
+              const id = `${firstShort}-${middleShort.replace(/\s+/g, '-')}-${lastShort}`.toLowerCase();
+              
+              combinations.push({
+                firstName,
+                middleName,
+                lastName,
+                fullName,
+                initials,
+                id,
+                firstNameShort: firstShort,
+                middleNameShort: middleShort,
+                lastNameShort: lastShort,
+                shortName,
+                shortInitials
+              });
+            }
+          }
+        }
       }
     }
   }

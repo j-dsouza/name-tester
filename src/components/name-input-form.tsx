@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { parseNames } from "@/utils/name-combinations";
+import { parseNames, parseNamesWithNicknames, getNicknameVariants, countCombinations } from "@/utils/name-combinations";
 
 interface NameInputFormProps {
   firstNames: string[];
@@ -23,6 +23,11 @@ export function NameInputForm({
   const [firstNamesInput, setFirstNamesInput] = useState(firstNames.join('\n'));
   const [middleNamesInput, setMiddleNamesInput] = useState(middleNames.join('\n'));
   const [lastNamesInput, setLastNamesInput] = useState(lastNames.join('\n'));
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleUpdate = () => {
     const parsedFirstNames = parseNames(firstNamesInput);
@@ -56,7 +61,7 @@ export function NameInputForm({
               className="min-h-32 resize-none"
             />
             <p className="text-xs text-muted-foreground">
-              {parseNames(firstNamesInput).length} names • Use (nickname) syntax for short names
+              {isClient ? `${parseNamesWithNicknames(firstNamesInput).reduce((total, parsed) => total + getNicknameVariants(parsed).length, 0)} names • ` : ''}Use (nickname) syntax for short names
             </p>
           </div>
           
@@ -70,7 +75,7 @@ export function NameInputForm({
               className="min-h-32 resize-none"
             />
             <p className="text-xs text-muted-foreground">
-              {parseNames(middleNamesInput).length} names • Use (nickname) syntax for short names
+              {isClient ? `${parseNamesWithNicknames(middleNamesInput).reduce((total, parsed) => total + getNicknameVariants(parsed).length, 0)} names • ` : ''}Use (nickname) syntax for short names
             </p>
           </div>
           
@@ -84,7 +89,7 @@ export function NameInputForm({
               className="min-h-32 resize-none"
             />
             <p className="text-xs text-muted-foreground">
-              {parseNames(lastNamesInput).length} names
+              {isClient ? `${parseNamesWithNicknames(lastNamesInput).reduce((total, parsed) => total + getNicknameVariants(parsed).length, 0)} names` : 'Enter last names above'}
             </p>
           </div>
         </div>
@@ -102,9 +107,7 @@ export function NameInputForm({
           <p>
             Total possible combinations: {' '}
             <span className="font-medium">
-              {parseNames(firstNamesInput).length * 
-               parseNames(middleNamesInput).length * 
-               parseNames(lastNamesInput).length}
+              {isClient ? countCombinations(firstNamesInput, middleNamesInput, lastNamesInput) : '0'}
             </span>
           </p>
         </div>

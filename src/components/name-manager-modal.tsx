@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { parseNames } from "@/utils/name-combinations";
+import { parseNames, parseNamesWithNicknames, getNicknameVariants, countCombinations } from "@/utils/name-combinations";
 
 interface NameManagerModalProps {
   isOpen: boolean;
@@ -33,6 +33,11 @@ export function NameManagerModal({
   const [firstNamesInput, setFirstNamesInput] = useState(firstNames.join('\n'));
   const [middleNamesInput, setMiddleNamesInput] = useState(middleNames.join('\n'));
   const [lastNamesInput, setLastNamesInput] = useState(lastNames.join('\n'));
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleSave = () => {
     const parsedFirstNames = parseNames(firstNamesInput);
@@ -67,13 +72,13 @@ export function NameManagerModal({
           <Tabs defaultValue="first" className="h-full flex flex-col">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="first">
-                First Names ({parseNames(firstNamesInput).length})
+                First Names {isClient && `(${parseNamesWithNicknames(firstNamesInput).reduce((total, parsed) => total + getNicknameVariants(parsed).length, 0)})`}
               </TabsTrigger>
               <TabsTrigger value="middle">
-                Middle Names ({parseNames(middleNamesInput).length})
+                Middle Names {isClient && `(${parseNamesWithNicknames(middleNamesInput).reduce((total, parsed) => total + getNicknameVariants(parsed).length, 0)})`}
               </TabsTrigger>
               <TabsTrigger value="last">
-                Last Names ({parseNames(lastNamesInput).length})
+                Last Names {isClient && `(${parseNamesWithNicknames(lastNamesInput).reduce((total, parsed) => total + getNicknameVariants(parsed).length, 0)})`}
               </TabsTrigger>
             </TabsList>
             
@@ -88,7 +93,7 @@ export function NameManagerModal({
                   className="h-80 resize-none"
                 />
                 <p className="text-xs text-muted-foreground">
-                  {parseNames(firstNamesInput).length} names entered
+                  {isClient ? `${parseNamesWithNicknames(firstNamesInput).reduce((total, parsed) => total + getNicknameVariants(parsed).length, 0)} names entered` : 'Enter names above'}
                 </p>
               </TabsContent>
               
@@ -102,7 +107,7 @@ export function NameManagerModal({
                   className="h-80 resize-none"
                 />
                 <p className="text-xs text-muted-foreground">
-                  {parseNames(middleNamesInput).length} names entered
+                  {isClient ? `${parseNamesWithNicknames(middleNamesInput).reduce((total, parsed) => total + getNicknameVariants(parsed).length, 0)} names entered` : 'Enter names above'}
                 </p>
               </TabsContent>
               
@@ -116,7 +121,7 @@ export function NameManagerModal({
                   className="h-80 resize-none"
                 />
                 <p className="text-xs text-muted-foreground">
-                  {parseNames(lastNamesInput).length} names entered
+                  {isClient ? `${parseNamesWithNicknames(lastNamesInput).reduce((total, parsed) => total + getNicknameVariants(parsed).length, 0)} names entered` : 'Enter names above'}
                 </p>
               </TabsContent>
             </div>
@@ -128,9 +133,7 @@ export function NameManagerModal({
             <p className="text-sm text-muted-foreground">
               Total combinations: {' '}
               <span className="font-medium">
-                {parseNames(firstNamesInput).length * 
-                 parseNames(middleNamesInput).length * 
-                 parseNames(lastNamesInput).length}
+                {isClient ? countCombinations(firstNamesInput, middleNamesInput, lastNamesInput) : '0'}
               </span>
             </p>
           </div>
