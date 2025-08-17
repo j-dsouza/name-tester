@@ -15,6 +15,7 @@ import {
   sortCombinations,
 } from "@/utils/name-combinations";
 import { COMBINATION_THRESHOLD, DEFAULT_SAMPLE_SIZE } from "@/consts/app";
+import { NameCombinationTable } from "@/components/name-combination-table";
 
 interface NameCombinationDisplayProps {
   combinations: NameCombination[];
@@ -172,80 +173,30 @@ export function NameCombinationDisplay({
               </p>
             </div>
           ) : (
-            <div>
-              <div className="hidden sm:grid grid-cols-4 gap-4 items-center p-3 border rounded-t-lg bg-background hover:bg-muted/50 transition-colors sticky top-0 z-20 shadow-sm border-b">
-                <div className="text-sm font-medium text-muted-foreground">
-                  Legal Name
-                </div>
-                <div className="text-sm font-medium text-muted-foreground">
-                  Used Name
-                </div>
-                <div className="text-sm font-medium text-muted-foreground">
-                  Initials
-                </div>
-                <div className="text-sm font-medium text-muted-foreground text-center">
-                  Shortlist
-                </div>
-              </div>
-              <div className="border border-t-0 rounded-b-lg overflow-hidden">
-                {displayedCombinations.map((combination, index) => {
+            <NameCombinationTable
+              combinations={displayedCombinations}
+              useShortNames={useShortNames}
+              headerActionLabel="Shortlist"
+              renderAction={(combination) => {
                 const isShortlisted = shortlistedCombinations.includes(
                   combination.id
                 );
-                const isLast = index === displayedCombinations.length - 1;
-
+                
                 return (
-                  <div
-                    key={combination.id}
-                    className={`grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-4 items-center p-3 hover:bg-muted/50 transition-colors ${
-                      !isLast ? 'border-b' : ''
-                    }`}
+                  <Button
+                    onClick={() => onToggleShortlist(combination.id)}
+                    variant={isShortlisted ? "default" : "outline"}
+                    size="sm"
                   >
-                    {/* Legal Name - always full names */}
-                    <div className="font-medium text-foreground">
-                      <span>{combination.firstName}</span>
-                      {combination.middleName && (
-                        <span className="text-muted-foreground">
-                          {" "}
-                          {combination.middleName}
-                        </span>
-                      )}
-                      <span> {combination.lastName}</span>
-                    </div>
-                    
-                    {/* Used Name - depends on user setting (no middle name) */}
-                    <div className="font-medium text-foreground">
-                      {useShortNames ? (
-                        <span>{combination.firstNameShort} {combination.lastNameShort}</span>
-                      ) : (
-                        <span>{combination.firstName} {combination.lastName}</span>
-                      )}
-                    </div>
-                    
-                    {/* Initials - based on legal name */}
-                    <div className="text-foreground font-mono text-sm">
-                      {combination.initials}
-                    </div>
-                    
-                    {/* Shortlist button */}
-                    <div className="flex justify-center">
-                      <Button
-                        onClick={() => onToggleShortlist(combination.id)}
-                        variant={isShortlisted ? "default" : "outline"}
-                        size="sm"
-                      >
-                        <Heart
-                          className={`h-4 w-4 ${
-                            isShortlisted ? "fill-current" : ""
-                          }`}
-                        />
-                      </Button>
-                    </div>
-                  </div>
+                    <Heart
+                      className={`h-4 w-4 ${
+                        isShortlisted ? "fill-current" : ""
+                      }`}
+                    />
+                  </Button>
                 );
-              })}
-              </div>
-            </div>
+              }}
+            />
           )}
 
           {searchTerm && (
