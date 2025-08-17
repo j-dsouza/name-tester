@@ -48,11 +48,14 @@ The user needs to:
    - **Name Display**: Toggle between full names and preferred nicknames
    - **Responsive Design**: Mobile-first design that works across all device sizes
 
-6. **Shareable Links** (Optional Feature)
+6. **Shareable Links**
    - Create shareable links to allow sharing name lists and shortlists
    - 16-character shortlinks with collision-resistant hashing
    - Database-backed persistence with usage tracking
    - Warning system before overwriting local data
+   - **Database Retry System**: Automatic retry functionality for dev server environments
+   - **Warming Up Messages**: Clear user feedback during database startup delays
+   - **Progressive Retry**: Exponential backoff with up to 3 retry attempts over 2.5+ minutes
 
 # Data Structure
 
@@ -99,9 +102,10 @@ interface NameCombination {
 - **Pages**: Next.js App Router (`src/app/` directory)
 - **Components**: Modular React components in `src/components/`
 - **UI Components**: shadcn/ui library in `src/components/ui/`
-- **Hooks**: Custom React hooks in `src/hooks/`
+- **Hooks**: Custom React hooks in `src/hooks/` (including `useRetryWithWarmup`)
 - **Utils**: Helper functions in `src/utils/`
 - **Constants**: Configuration values in `src/consts/`
+- **Database**: Prisma configuration in `src/lib/prisma.ts` with 30-second timeout settings
 
 ## Key Constants
 - **COMBINATION_THRESHOLD**: 50 combinations (threshold for showing all vs sampling)
@@ -126,5 +130,8 @@ interface NameCombination {
 - **State Management**: All state stored client-side using browser localStorage
 - **Data Persistence**: State persists across browser refreshes and sessions
 - **Project Scope**: Single active set of names (no multiple projects support)
-- **Backend**: Optional Prisma + PostgreSQL backend for shareable links feature
+- **Backend**: Prisma + PostgreSQL backend for shareable links feature
 - **Database**: PostgreSQL with connection via `DATABASE_URL` environment variable
+- **Database Resilience**: Configured for dev server environments with automatic retry logic
+- **Timeout Configuration**: 30-second database timeouts with progressive retry delays (8s → 12s → 15s)
+- **User Experience**: Clear feedback during database warming periods with retry progress indication

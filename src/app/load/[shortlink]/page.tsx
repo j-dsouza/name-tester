@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle, Home } from "lucide-react";
 import { AppState, STORAGE_KEY } from "@/consts/app";
+import { useRetryWithWarmup } from "@/hooks/use-retry-with-warmup";
 
 interface LoadedData {
   data: AppState;
@@ -21,46 +22,29 @@ export default function LoadSharedPage() {
   const shortlink = params.shortlink as string;
   
   const [loadedData, setLoadedData] = useState<LoadedData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string>("");
   const [showWarning, setShowWarning] = useState(false);
+  const { isLoading, isWarmingUp, retryCount, error, execute, reset } = useRetryWithWarmup();
+  const maxRetries = 3;
 
   useEffect(() => {
     if (!shortlink) {
-      setError("Invalid shortlink");
-      setIsLoading(false);
       return;
     }
 
     const fetchSharedData = async () => {
-    try {
-      const response = await fetch(`/api/load/${shortlink}`);
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          setError("This shared link does not exist or has expired.");
-        } else if (data.error === 'Database unavailable') {
-          setError("Database unavailable");
-        } else {
-          setError(data.error || "Failed to load shared data");
-        }
-        setIsLoading(false);
-        return;
+      try {
+        const data = await execute(() => fetch(`/api/load/${shortlink}`));
+        
+        setLoadedData(data);
+        setShowWarning(true);
+      } catch (err) {
+        // All errors are handled by the hook
+        console.error('Error fetching shared data:', err);
       }
-
-      setLoadedData(data);
-      setShowWarning(true);
-    } catch (err) {
-      console.error('Error fetching shared data:', err);
-      setError("Failed to load shared data. Please check your connection.");
-    } finally {
-      setIsLoading(false);
-    }
     };
 
     fetchSharedData();
-  }, [shortlink]);
+  }, [shortlink, execute]);
 
   const handleConfirmLoad = () => {
     if (!loadedData) return;
@@ -85,16 +69,54 @@ export default function LoadSharedPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Card className="w-full max-w-md">
-          <CardContent className="flex flex-col items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin mb-4" />
-            <p className="text-muted-foreground">Loading shared data...</p>
+          <CardContent className="flex flex-col items-center justify-center py-8 space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground">
+                {isWarmingUp ? (
+                  retryCount === 0 ? 'Warming up database...' : `Retrying connection... (${retryCount}/${maxRetries})`
+                ) : (
+                  'Loading shared data...'
+                )}
+              </p>
+              
+              {isWarmingUp && (
+                <Alert>
+                  <AlertDescription className="text-center">
+                    {retryCount === 0 ? (
+                      <>
+                        The database is starting up. This may take up to 30 seconds.
+                        <br />
+                        <span className="text-sm text-muted-foreground">
+                          Please wait while we load your shared name combinations...
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        Database is taking longer than expected to start.
+                        <br />
+                        <span className="text-sm text-muted-foreground">
+                          Attempt {retryCount} of {maxRetries} - retrying automatically...
+                        </span>
+                      </>
+                    )}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  if (error) {
+  if (!shortlink || error) {
+    const errorMessage = !shortlink 
+      ? "Invalid shortlink" 
+      : error === "Resource not found" 
+        ? "This shared link does not exist or has expired."
+        : error;
+        
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Card className="w-full max-w-md">
@@ -106,7 +128,7 @@ export default function LoadSharedPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>
             
             <Button onClick={() => router.push('/')} className="w-full">

@@ -10,6 +10,7 @@ import { Copy, Check, Share, Loader2 } from "lucide-react";
 import { AppState } from "@/consts/app";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useRetryWithWarmup } from "@/hooks/use-retry-with-warmup";
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -19,42 +20,28 @@ interface ShareModalProps {
 
 export function ShareModal({ isOpen, onClose, appState }: ShareModalProps) {
   const [shareUrl, setShareUrl] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>("");
   const [isCopied, setIsCopied] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const { isLoading, isWarmingUp, retryCount, error, execute, reset } = useRetryWithWarmup();
+  const maxRetries = 3;
 
   const handleCreateLink = async () => {
-    setIsLoading(true);
-    setError("");
-    
     try {
-      const response = await fetch('/api/share', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(appState),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (data.error === 'Database unavailable') {
-          setError('Database unavailable');
-        } else {
-          setError(data.error || 'Failed to create share link');
-        }
-        return;
-      }
-
+      const data = await execute(() => 
+        fetch('/api/share', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(appState),
+        })
+      );
+      
       setShareUrl(data.url);
     } catch (err) {
+      // Error is already handled by the hook
       console.error('Error creating share link:', err);
-      setError('Failed to create share link. Please check your connection.');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -105,8 +92,8 @@ export function ShareModal({ isOpen, onClose, appState }: ShareModalProps) {
 
   const handleClose = () => {
     setShareUrl("");
-    setError("");
     setIsCopied(false);
+    reset();
     onClose();
   };
 
@@ -123,23 +110,53 @@ export function ShareModal({ isOpen, onClose, appState }: ShareModalProps) {
       )}
 
       {!shareUrl ? (
-        <Button
-          onClick={handleCreateLink}
-          disabled={isLoading}
-          className={`w-full ${isMobile ? 'min-h-[44px] touch-manipulation' : ''}`}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating Link...
-            </>
-          ) : (
-            <>
-              <Share className="mr-2 h-4 w-4" />
-              Create Share Link
-            </>
+        <div className="space-y-3">
+          <Button
+            onClick={handleCreateLink}
+            disabled={isLoading}
+            className={`w-full ${isMobile ? 'min-h-[44px] touch-manipulation' : ''}`}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {isWarmingUp ? (
+                  retryCount === 0 ? 'Warming up database...' : `Retrying... (${retryCount}/${maxRetries})`
+                ) : (
+                  'Creating Link...'
+                )}
+              </>
+            ) : (
+              <>
+                <Share className="mr-2 h-4 w-4" />
+                Create Share Link
+              </>
+            )}
+          </Button>
+          
+          {isLoading && isWarmingUp && (
+            <Alert>
+              <AlertDescription className="text-center">
+                {retryCount === 0 ? (
+                  <>
+                    The database is starting up. This may take up to 30 seconds.
+                    <br />
+                    <span className="text-sm text-muted-foreground">
+                      Please wait while we prepare your shareable link...
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Database is taking longer than expected to start.
+                    <br />
+                    <span className="text-sm text-muted-foreground">
+                      Attempt {retryCount} of {maxRetries} - retrying automatically...
+                    </span>
+                  </>
+                )}
+              </AlertDescription>
+            </Alert>
           )}
-        </Button>
+        </div>
       ) : (
         <div className="space-y-3">
           <div className={`flex ${isMobile ? 'flex-col gap-2' : 'space-x-2'}`}>

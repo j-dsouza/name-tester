@@ -26,6 +26,7 @@ src/
 ### Key Dependencies
 - **UI**: @radix-ui/* primitives, lucide-react icons, tailwindcss
 - **Forms**: react-hook-form, @hookform/resolvers, zod
+- **Database**: Prisma ORM with PostgreSQL
 - **Development**: ESLint, TypeScript
 
 ## Development Guidelines
@@ -114,12 +115,20 @@ HomePage (src/app/page.tsx)
 ## Feature Integration Points
 
 ### Shareable Links Integration
-When implementing shareable links feature:
-- **API Routes**: Add `src/app/api/share/route.ts` and `src/app/api/load/[shortlink]/route.ts`
-- **Load Page**: Add `src/app/load/[shortlink]/page.tsx` for rehydration
-- **Share Button**: Insert in NameCombinationDisplay component header (line 105-124)
-- **Database Schema**: Use Prisma with shared_links table
-- **State Serialization**: Serialize complete `AppState` to JSON for storage
+The shareable links feature is implemented with robust database retry functionality:
+- **API Routes**: `src/app/api/share/route.ts` and `src/app/api/load/[shortlink]/route.ts`
+- **Load Page**: `src/app/load/[shortlink]/page.tsx` for rehydration
+- **Share Button**: Integrated in NameCombinationDisplay component header
+- **Database Schema**: Prisma with shared_links table
+- **State Serialization**: Complete `AppState` serialized to JSON for storage
+- **Database Retry Logic**: Automatic retry with warming up messages for dev server scenarios
+
+### Database Retry Architecture
+- **Hook**: `useRetryWithWarmup` in `src/hooks/use-retry-with-warmup.ts` provides centralized retry logic
+- **Timeout Configuration**: 30-second timeouts with automatic retries (up to 3 attempts)
+- **Exponential Backoff**: 8s → 12s → 15s delays between retries for total 2.5+ minute retry window
+- **User Feedback**: Progressive warming up messages and retry progress indication
+- **Error Handling**: Graceful degradation with clear error messages for persistent failures
 
 ## Page Documentation
 
@@ -138,14 +147,16 @@ This section tracks what each page in the application does and where functionali
 - **State Management**: Full `AppState` management with localStorage persistence
 - **Key Components**: NameCombinationDisplay, ShortlistDisplay, NameManagerModal, SettingsModal
 
-### Planned Pages (Shareable Links Feature)
+### Implemented Pages (Shareable Links Feature)
 
 #### `/load/[shortlink]` (Load Shared Data)
-- **File**: `src/app/load/[shortlink]/page.tsx` (to be created)
+- **File**: `src/app/load/[shortlink]/page.tsx`
 - **Purpose**: Load shared name combinations from database and optionally replace local state
 - **Features**:
   - Validate shortlink parameter
-  - Fetch shared data from API
+  - Fetch shared data from API with automatic retry functionality
   - Show warning modal before overwriting local data
   - Handle invalid/expired links gracefully
+  - Database warming up notifications with progress indicators
 - **Error States**: Invalid link, database unavailable, expired data
+- **Retry Logic**: Uses `useRetryWithWarmup` hook for robust database connection handling

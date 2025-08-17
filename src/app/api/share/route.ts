@@ -61,12 +61,21 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating shared link:', error);
     
-    // Check if it's a database connection error
-    if (error instanceof Error && error.message.includes('database')) {
-      return NextResponse.json(
-        { error: 'Database unavailable' },
-        { status: 503 }
-      );
+    // Check for various database connection/timeout errors
+    if (error instanceof Error) {
+      const errorMessage = error.message.toLowerCase();
+      
+      // Database connection errors, timeout errors, or engine startup issues
+      if (errorMessage.includes('database') || 
+          errorMessage.includes('timeout') || 
+          errorMessage.includes('connect') ||
+          errorMessage.includes('engine') ||
+          errorMessage.includes('prisma')) {
+        return NextResponse.json(
+          { error: 'Database unavailable' },
+          { status: 503 }
+        );
+      }
     }
     
     return NextResponse.json(
