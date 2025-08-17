@@ -48,7 +48,19 @@ The user needs to:
    - **Name Display**: Toggle between full names and preferred nicknames
    - **Responsive Design**: Mobile-first design that works across all device sizes
 
-6. **Shareable Links**
+6. **AI Name Suggestions** ✅ *Implemented*
+   - AI-powered name suggestions using OpenAI GPT-4.1-mini with structured outputs
+   - Context-aware suggestions based on existing names in collection
+   - Smart button enabling based on minimum name requirements
+   - **Structured Response Validation**: Zod schema ensures clean name format without numbers/bullets
+   - **Responsive UI**: Tooltips on desktop, popups on mobile for disabled states
+   - **Loading States**: Visual feedback during API calls with spinner indicators
+   - **Error Handling**: Comprehensive error handling for API failures, rate limits, and validation
+   - **Nickname Support**: Generated names support same nickname syntax as manual entries
+   - **Toast Notifications**: Success and error feedback via toast system
+   - **Integration**: Seamless integration with existing name management workflow
+
+7. **Shareable Links**
    - Create shareable links to allow sharing name lists and shortlists
    - 16-character shortlinks with collision-resistant hashing
    - Database-backed persistence with usage tracking
@@ -131,7 +143,9 @@ interface NameCombination {
 - **Data Persistence**: State persists across browser refreshes and sessions
 - **Project Scope**: Single active set of names (no multiple projects support)
 - **Backend**: Prisma + PostgreSQL backend for shareable links feature
+- **AI Integration**: OpenAI GPT-4.1-mini API with structured outputs for intelligent name suggestions
 - **Database**: PostgreSQL with connection via `DATABASE_URL` environment variable
+- **API Keys**: OpenAI API key via `OPENAI_API_KEY` environment variable (server-side only)
 - **Database Resilience**: Configured for dev server environments with automatic retry logic
 - **Timeout Configuration**: 30-second database timeouts with progressive retry delays (8s → 12s → 15s)
 - **User Experience**: Clear feedback during database warming periods with retry progress indication

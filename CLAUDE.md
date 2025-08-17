@@ -27,6 +27,7 @@ src/
 - **UI**: @radix-ui/* primitives, lucide-react icons, tailwindcss
 - **Forms**: react-hook-form, @hookform/resolvers, zod
 - **Database**: Prisma ORM with PostgreSQL
+- **AI**: OpenAI API for name suggestions
 - **Development**: ESLint, TypeScript
 
 ## Development Guidelines
@@ -99,6 +100,7 @@ HomePage (src/app/page.tsx)
 │   └── Management controls (clear, remove)
 ├── NameManagerModal
 │   ├── Name input textareas (first, middle, last)
+│   ├── AI suggestion buttons with conditional enabling
 │   └── Form validation and submission
 └── SettingsModal
     ├── Display preferences toggles
@@ -129,6 +131,22 @@ The shareable links feature is implemented with robust database retry functional
 - **Exponential Backoff**: 8s → 12s → 15s delays between retries for total 2.5+ minute retry window
 - **User Feedback**: Progressive warming up messages and retry progress indication
 - **Error Handling**: Graceful degradation with clear error messages for persistent failures
+
+### AI Name Suggestions Integration
+The AI name suggestions feature provides intelligent name recommendations using OpenAI's API:
+- **API Route**: `src/app/api/suggest-names/route.ts` for OpenAI GPT-4.1-mini integration
+- **Structured Outputs**: Uses Zod schema with `zodResponseFormat` to ensure clean response format
+- **Schema Validation**: Multi-layer validation (OpenAI structured outputs + Zod parsing + regex validation)
+- **Button Integration**: Suggestion buttons embedded in NameManagerModal component next to textarea labels
+- **Requirements Logic**: Smart enabling/disabling based on minimum name criteria
+- **Security**: Server-side API key handling with no client exposure
+- **Error Handling**: Comprehensive error handling for API failures, rate limits, JSON parsing, and schema validation
+- **Mobile Optimization**: Touch-friendly buttons with AlertDialog popups for disabled state feedback
+- **Desktop UX**: Tooltip system for disabled button explanations
+- **Loading States**: Spinner indicators during API calls with "Suggesting..." text
+- **Toast Integration**: Success/error notifications via existing toast system
+- **Name Processing**: Generated names use existing parsing pipeline for nickname syntax support
+- **Response Processing**: JSON parsing → Schema validation → Regex validation → Client response
 
 ## Page Documentation
 
