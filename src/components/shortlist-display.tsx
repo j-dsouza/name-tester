@@ -26,7 +26,7 @@ export function ShortlistDisplay({
           <CardTitle className="flex items-center gap-2">
             <Heart className="h-5 w-5" />
             Shortlist
-            <Badge variant="outline">0</Badge>
+            <Badge variant="secondary">0</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -48,7 +48,7 @@ export function ShortlistDisplay({
           <CardTitle className="flex items-center gap-2">
             <Heart className="h-5 w-5 fill-current" />
             Shortlist
-            <Badge variant="outline">{shortlistedCombinations.length}</Badge>
+            <Badge variant="secondary">{shortlistedCombinations.length}</Badge>
           </CardTitle>
           <Button
             onClick={onClearShortlist}
@@ -62,65 +62,73 @@ export function ShortlistDisplay({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
-          <div className="hidden sm:grid grid-cols-4 gap-4 items-center p-3 border-b bg-muted/20">
-            <div className="text-sm font-semibold text-muted-foreground">
+        <div>
+          <div className="hidden sm:grid grid-cols-4 gap-4 items-center p-3 border rounded-t-lg bg-background hover:bg-muted/50 transition-colors sticky top-0 z-20 shadow-sm border-b">
+            <div className="text-sm font-medium text-muted-foreground">
               Legal Name
             </div>
-            <div className="text-sm font-semibold text-muted-foreground">
+            <div className="text-sm font-medium text-muted-foreground">
               Used Name
             </div>
-            <div className="text-sm font-semibold text-muted-foreground">
+            <div className="text-sm font-medium text-muted-foreground">
               Initials
             </div>
-            <div className="text-sm font-semibold text-muted-foreground text-center">
+            <div className="text-sm font-medium text-muted-foreground text-center">
               Remove
             </div>
           </div>
-          {shortlistedCombinations.map((combination) => (
-            <div
-              key={combination.id}
-              className="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-4 items-center p-3 border rounded-lg bg-accent/20"
-            >
-              {/* Legal Name - always full names */}
-              <div className="font-medium">
-                <span>{combination.firstName}</span>
-                {combination.middleName && (
-                  <span className="text-muted-foreground">
-                    {" "}
-                    {combination.middleName}
-                  </span>
-                )}
-                <span> {combination.lastName}</span>
+          <div className="border border-t-0 rounded-b-lg overflow-hidden">
+            {shortlistedCombinations.map((combination, index) => {
+            const isLast = index === shortlistedCombinations.length - 1;
+            
+            return (
+              <div
+                key={combination.id}
+                className={`grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-4 items-center p-3 hover:bg-muted/50 transition-colors ${
+                  !isLast ? 'border-b' : ''
+                }`}
+              >
+                {/* Legal Name - always full names */}
+                <div className="font-medium text-foreground">
+                  <span>{combination.firstName}</span>
+                  {combination.middleName && (
+                    <span className="text-muted-foreground">
+                      {" "}
+                      {combination.middleName}
+                    </span>
+                  )}
+                  <span> {combination.lastName}</span>
+                </div>
+                
+                {/* Used Name - depends on user setting (no middle name) */}
+                <div className="font-medium text-foreground">
+                  {useShortNames ? (
+                    <span>{combination.firstNameShort} {combination.lastNameShort}</span>
+                  ) : (
+                    <span>{combination.firstName} {combination.lastName}</span>
+                  )}
+                </div>
+                
+                {/* Initials - based on legal name */}
+                <div className="text-foreground font-mono text-sm">
+                  {combination.initials}
+                </div>
+                
+                {/* Remove button */}
+                <div className="flex justify-center">
+                  <Button
+                    onClick={() => onRemoveFromShortlist(combination.id)}
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Heart className="h-4 w-4 fill-current" />
+                  </Button>
+                </div>
               </div>
-              
-              {/* Used Name - depends on user setting (no middle name) */}
-              <div className="font-medium">
-                {useShortNames ? (
-                  <span>{combination.firstNameShort} {combination.lastNameShort}</span>
-                ) : (
-                  <span>{combination.firstName} {combination.lastName}</span>
-                )}
-              </div>
-              
-              {/* Initials - based on legal name */}
-              <div className="text-muted-foreground font-mono text-sm">
-                {combination.initials}
-              </div>
-              
-              {/* Remove button */}
-              <div className="flex justify-center">
-                <Button
-                  onClick={() => onRemoveFromShortlist(combination.id)}
-                  variant="ghost"
-                  size="sm"
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Heart className="h-4 w-4 fill-current" />
-                </Button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -96,7 +96,7 @@ export function NameCombinationDisplay({
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
             <CardTitle className="flex items-center gap-2">
               Name Combinations
-              <Badge variant="outline">
+              <Badge variant="secondary">
                 {sortedCombinations.length}
                 {combinations.length !== sortedCombinations.length
                   ? ` of ${combinations.length}`
@@ -172,33 +172,37 @@ export function NameCombinationDisplay({
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
-              <div className="hidden sm:grid grid-cols-4 gap-4 items-center p-3 border-b bg-muted/20">
-                <div className="text-sm font-semibold text-muted-foreground">
+            <div>
+              <div className="hidden sm:grid grid-cols-4 gap-4 items-center p-3 border rounded-t-lg bg-background hover:bg-muted/50 transition-colors sticky top-0 z-20 shadow-sm border-b">
+                <div className="text-sm font-medium text-muted-foreground">
                   Legal Name
                 </div>
-                <div className="text-sm font-semibold text-muted-foreground">
+                <div className="text-sm font-medium text-muted-foreground">
                   Used Name
                 </div>
-                <div className="text-sm font-semibold text-muted-foreground">
+                <div className="text-sm font-medium text-muted-foreground">
                   Initials
                 </div>
-                <div className="text-sm font-semibold text-muted-foreground text-center">
+                <div className="text-sm font-medium text-muted-foreground text-center">
                   Shortlist
                 </div>
               </div>
-              {displayedCombinations.map((combination) => {
+              <div className="border border-t-0 rounded-b-lg overflow-hidden">
+                {displayedCombinations.map((combination, index) => {
                 const isShortlisted = shortlistedCombinations.includes(
                   combination.id
                 );
+                const isLast = index === displayedCombinations.length - 1;
 
                 return (
                   <div
                     key={combination.id}
-                    className="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-4 items-center p-3 border rounded-lg hover:bg-accent/50 transition-colors"
+                    className={`grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-4 items-center p-3 hover:bg-muted/50 transition-colors ${
+                      !isLast ? 'border-b' : ''
+                    }`}
                   >
                     {/* Legal Name - always full names */}
-                    <div className="font-medium">
+                    <div className="font-medium text-foreground">
                       <span>{combination.firstName}</span>
                       {combination.middleName && (
                         <span className="text-muted-foreground">
@@ -210,7 +214,7 @@ export function NameCombinationDisplay({
                     </div>
                     
                     {/* Used Name - depends on user setting (no middle name) */}
-                    <div className="font-medium">
+                    <div className="font-medium text-foreground">
                       {useShortNames ? (
                         <span>{combination.firstNameShort} {combination.lastNameShort}</span>
                       ) : (
@@ -219,7 +223,7 @@ export function NameCombinationDisplay({
                     </div>
                     
                     {/* Initials - based on legal name */}
-                    <div className="text-muted-foreground font-mono text-sm">
+                    <div className="text-foreground font-mono text-sm">
                       {combination.initials}
                     </div>
                     
@@ -240,6 +244,7 @@ export function NameCombinationDisplay({
                   </div>
                 );
               })}
+              </div>
             </div>
           )}
 

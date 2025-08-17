@@ -51,7 +51,19 @@ const config = {
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'
+  			},
+  			chart: {
+  				'1': 'hsl(246.9065 74.3316% 63.3333%)',
+  				'2': 'hsl(282.2857 43.5685% 47.2549%)',
+  				'3': 'hsl(274.6154 100% 25.4902%)',
+  				'4': 'hsl(218.5401 79.1908% 66.0784%)',
+  				'5': 'hsl(207.2727 44% 49.0196%)'
   			}
+  		},
+  		fontFamily: {
+  			sans: ['var(--font-sans)', 'sans-serif'],
+  			serif: ['var(--font-serif)', 'serif'],
+  			mono: ['var(--font-mono)', 'monospace']
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
