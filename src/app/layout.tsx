@@ -21,6 +21,9 @@ const sourceCodePro = Source_Code_Pro({
 export const metadata: Metadata = {
   title: "Name Tester",
   description: "Baby name combination explorer",
+  icons: {
+    icon: "/favicon.ico",
+  },
 }
 
 export default function RootLayout({
