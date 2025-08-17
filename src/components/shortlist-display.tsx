@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Heart, Trash2 } from "lucide-react";
 import { NameCombination } from "@/utils/name-combinations";
 import { NameCombinationTable } from "@/components/name-combination-table";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ShortlistDisplayProps {
   shortlistedCombinations: NameCombination[];
@@ -20,6 +21,8 @@ export function ShortlistDisplay({
   onRemoveFromShortlist,
   onClearShortlist,
 }: ShortlistDisplayProps) {
+  const isMobile = useIsMobile();
+
   if (shortlistedCombinations.length === 0) {
     return (
       <Card className="w-full">
@@ -45,7 +48,7 @@ export function ShortlistDisplay({
   return (
     <Card className="w-full">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className={`flex ${isMobile ? 'flex-col gap-3' : 'items-center justify-between'}`}>
           <CardTitle className="flex items-center gap-2">
             <Heart className="h-5 w-5 fill-current" />
             Shortlist
@@ -54,8 +57,8 @@ export function ShortlistDisplay({
           <Button
             onClick={onClearShortlist}
             variant="outline"
-            size="sm"
-            className="text-destructive hover:text-destructive"
+            size={isMobile ? "default" : "sm"}
+            className={`text-destructive hover:text-destructive ${isMobile ? 'min-h-[44px] touch-manipulation' : ''}`}
           >
             <Trash2 className="h-4 w-4 mr-1" />
             Clear All
@@ -72,9 +75,9 @@ export function ShortlistDisplay({
               onClick={() => onRemoveFromShortlist(combination.id)}
               variant="ghost"
               size="sm"
-              className="text-destructive hover:text-destructive"
+              className="text-destructive hover:text-destructive min-h-[44px] min-w-[44px] touch-manipulation"
             >
-              <Heart className="h-4 w-4 fill-current" />
+              <Heart className="h-5 w-5 fill-current" />
             </Button>
           )}
         />

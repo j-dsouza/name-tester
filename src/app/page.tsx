@@ -8,6 +8,7 @@ import { SettingsModal } from "@/components/settings-modal";
 import { ShareModal } from "@/components/share-modal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   generateCombinations,
   filterDuplicateMiddleLastNames,
@@ -24,6 +25,7 @@ export default function HomePage() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const isMobile = useIsMobile();
 
   // Mark as initialized after first render to avoid SSR/client mismatch
   useEffect(() => {
@@ -154,15 +156,25 @@ export default function HomePage() {
       </div>
 
       <Tabs defaultValue="combinations" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="combinations">
-            All Combinations ({filteredCombinations.length}
-            {combinations.length !== filteredCombinations.length
-              ? ` of ${combinations.length}`
-              : ""}
-            )
+        <TabsList className={`grid w-full grid-cols-2 ${isMobile ? 'h-12' : ''}`}>
+          <TabsTrigger 
+            value="combinations" 
+            className={`${isMobile ? 'text-sm px-2' : ''}`}
+          >
+            {isMobile ? (
+              <>All ({filteredCombinations.length})</>
+            ) : (
+              <>All Combinations ({filteredCombinations.length}
+              {combinations.length !== filteredCombinations.length
+                ? ` of ${combinations.length}`
+                : ""}
+              )</>
+            )}
           </TabsTrigger>
-          <TabsTrigger value="shortlist">
+          <TabsTrigger 
+            value="shortlist"
+            className={`${isMobile ? 'text-sm px-2' : ''}`}
+          >
             Shortlist ({shortlistedCombinations.length})
           </TabsTrigger>
         </TabsList>
